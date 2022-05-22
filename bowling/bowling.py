@@ -14,7 +14,7 @@ class BowlingGame:
         self.__current_frame = 0 
         self.__pins_last_frame = 10 # Given the nature of the bonus rolls, we have to keep track of how pins there are.
 
-    def roll(self, pins):
+    def roll(self, pins: int):
         if pins < 0 or pins > 10: # Verify impossible roll
             raise ValueError("Invalid number of pins")
         if self.__current_frame != 9: # Every frame pre-last uses the same rules.
@@ -48,7 +48,7 @@ class BowlingGame:
         if len(self.__frames[self.__current_frame]) >= 2 and self.__current_frame < 9: # Normal frames will end after 2 rolls.
             self.__current_frame +=1
 
-    def score(self): 
+    def score(self) -> int: 
         if len(self.__frames[0]) == 0 or len(self.__frames[9]) == 0: # If there's not enough throws in the first or last frame, the game wasn't done yet.
             raise ValueError("Not enough throws")
         score = 0
