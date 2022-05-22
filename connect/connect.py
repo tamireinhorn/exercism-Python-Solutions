@@ -83,7 +83,10 @@ class ConnectGame:
         return neigh
         
     def player_victory(self, player):
-        board = self.board
+        if player == PLAYER_2:
+            board = self.board
+        else:
+            board = self.transpose_board(board)
         row_edge = len(board) - 1
         first_line = board[0]
         queue = [node_info(node, 0 ,i) for i, node in enumerate(first_line) if node.value == player]
