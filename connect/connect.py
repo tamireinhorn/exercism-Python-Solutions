@@ -86,7 +86,7 @@ class ConnectGame:
         if player == PLAYER_2:
             board = self.board
         else:
-            board = self.transpose_board(board)
+            board = self.transpose_board()
         row_edge = len(board) - 1
         first_line = board[0]
         queue = [node_info(node, 0 ,i) for i, node in enumerate(first_line) if node.value == player]
