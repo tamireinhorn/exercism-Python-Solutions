@@ -12,7 +12,7 @@ class RestAPI:
         new_database = {}
         if database:
             for entry in database['users']:
-                new_entry = {'owes' : {}, 'balance': entry.get('balance')}
+                new_entry = {'owes' : {}}
                 possible_users = set(entry.get('owes').keys()).union(set(entry.get('owed_by'))) # This gets all unique users in that entry!
                 for user in possible_users:
                     user_amount = entry.get('owes').get(user, 0) - entry.get('owed_by').get(user, 0) # We aggregate the debt of that user in the entry in one dict.
@@ -43,11 +43,12 @@ class RestAPI:
 
     def __add_user(self, payload: dict) -> str:
         new_user = payload['user']
-        new_user_entry = {'owes': {}, 'balance': 0.0}
+        new_user_entry = {'owes': {}}
         self.database[new_user] = new_user_entry
         return_new_user_entry = deepcopy(new_user_entry)
         return_new_user_entry['owed_by'] = {}
         return_new_user_entry['name'] = new_user
+        return_new_user_entry['balance'] = 0.0
         return json.dumps(return_new_user_entry)
     
     def __add_iou(self, payload: dict) -> str:
@@ -60,16 +61,17 @@ class RestAPI:
     def parse_database_return(self, user: str) -> dict: 
         # This method exists because the output expects two dicts, one of owes and other of owed_by
         copy_user_entry = self.database.get(user)
+        copy_user_entry['balance'] = -sum(copy_user_entry['owes'].values())
         copy_user_entry['owed_by'] = {user: -amount for user, amount in copy_user_entry['owes'].items() if amount < 0} # Negative debt -> user is OWED BY, goes to new dict for output.
         copy_user_entry['owes'] = {user: amount for user, amount in copy_user_entry['owes'].items() if amount > 0} # Positive debt in owes -> stays
         copy_user_entry['name'] = user
+        
         return copy_user_entry 
 
 
     def __modify_user(self, user: str, other_guy: str, amount: float) -> dict:
         # This is a remodeling of the method I did, but this time assuming debt is a single dictionary. 
         user_data = self.database.get(user)
-        user_data['balance'] -= amount # A new loan will always decrease your balance, either decreasing borrower by amount or decreasing lender by -amount (which is a net increase)
         user_data['owes'][other_guy] = user_data['owes'].get(other_guy, 0) + amount # We update the dictionary, adding the amount to the current debt.
         parsed_user_data = self.parse_database_return(user) # Parse this due to the expected output.
         return parsed_user_data
