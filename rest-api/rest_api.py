@@ -8,7 +8,7 @@ def _clean_url(url: str) -> str :
 
 VALID_GETS = ['users']
 class RestAPI:
-    def __init__(self, database: dict = None):
+    def __init__(self, database: dict=None):
         new_database = {}
         if database:
             for entry in database['users']:
@@ -20,7 +20,7 @@ class RestAPI:
                 new_database[entry['name']] = new_entry # The database is a dictionary whose keys are the names of the people in it.
         self.database = new_database
 
-    def get(self, url: str, payload: dict = None):
+    def get(self, url: str, payload: dict=None):
         clean_url = _clean_url(url)
         if clean_url not in VALID_GETS:
              raise ValueError(f'Invalid request. GET only accepts the following requests: {VALID_GETS}.')
@@ -28,7 +28,7 @@ class RestAPI:
             payload = json.loads(payload)
             return json.dumps({'users': [self.parse_database_return(user) for user in payload['users']]})
         else:
-            return json.dumps({'users': [i for i in self.database]})
+            return json.dumps({'users': list(self.database)})
     
     def post(self, url: str, payload: str):
         url = _clean_url(url)
@@ -42,11 +42,7 @@ class RestAPI:
     def __add_user(self, payload: dict) -> str:
         new_user = payload['user']
         self.database[new_user] = {}
-        return_new_user_entry = {}
-        return_new_user_entry['owed_by'] = {}
-        return_new_user_entry['owes'] = {}
-        return_new_user_entry['name'] = new_user
-        return_new_user_entry['balance'] = 0.0
+        return_new_user_entry = self.parse_database_return(new_user)
         return json.dumps(return_new_user_entry)
     
     def __add_iou(self, payload: dict) -> str:
@@ -54,18 +50,16 @@ class RestAPI:
         lender, borrower, amount = payload['lender'], payload['borrower'], payload['amount']
         lender_entry = self.__modify_user(lender, borrower, -amount)
         borrower_entry = self.__modify_user(borrower, lender, amount)
-        return json.dumps({'users': sorted([lender_entry, borrower_entry], key = lambda x: x['name'])}) # The expected return is ordered by the name of the users in the IOU.   
+        return json.dumps({'users': sorted([lender_entry, borrower_entry], key=lambda x: x['name'])}) # The expected return is ordered by the name of the users in the IOU.   
 
     def parse_database_return(self, user: str) -> dict: 
         # This method exists because the output expects two dicts, one of owes and other of owed_by
         user_entry = self.database.get(user)
-        copy_user_entry = {}
-        copy_user_entry['balance'] = -sum(user_entry.values())
+        copy_user_entry = {'balance':-sum(user_entry.values())}
         copy_user_entry['owed_by'] = {user: -amount for user, amount in user_entry.items() if amount < 0} # Negative debt -> user is OWED BY, goes to new dict for output.
         copy_user_entry['owes'] = {user: amount for user, amount in user_entry.items() if amount > 0} # Positive debt in owes -> stays
         copy_user_entry['name'] = user
         return copy_user_entry 
-
 
     def __modify_user(self, user: str, other_guy: str, amount: float) -> dict:
         # This is a remodeling of the method I did, but this time assuming debt is a single dictionary. 
