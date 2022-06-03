@@ -44,7 +44,7 @@ def remove_suffix_ness(word: str) -> str:
     
 
 
-def noun_to_verb(sentence: str, index: int):
+def adjective_to_verb(sentence: str, index: int):
     """
 
     :param sentence: str that uses the word in sentence
@@ -57,4 +57,3 @@ def noun_to_verb(sentence: str, index: int):
     adjective as a verb.
     """
     return sentence.replace('.', '').split()[index] + 'en'
-  
