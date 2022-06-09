@@ -54,7 +54,7 @@ class BinarySearchTreeTest(unittest.TestCase):
     def test_can_sort_complex_tree(self):
         expected = ["1", "2", "3", "5", "6", "7"]
         self.assertEqual(
-            BinarySearchTree(["2", "1", "3", "6", "7", "5", "0"]).sorted_data(), expected
+            BinarySearchTree(["2", "1", "3", "6", "7", "5"]).sorted_data(), expected
         )
 
     # Utilities

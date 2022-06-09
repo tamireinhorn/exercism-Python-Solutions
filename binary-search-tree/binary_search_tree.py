@@ -22,27 +22,15 @@ class BinarySearchTree:
         return self.root
 
     def sorted_data(self):
-        
-        answer = []
-        # Start with a root. 
-        # Then keep going left 
-        current_node = self.root
-        stack = [current_node]
-        while len(answer) < self.size:
-            while current_node.left:
-                current_node = current_node.left 
-                stack.append(current_node)
-                breakpoint()
-                # You've gone as LEFT as you can. Perfect. So now, we pop the stack, put it on order, then keep doing that until we can turn right. 
-            while not current_node.right:
-                current_node = stack.pop()
-                answer.append(current_node.data)
-                print(2)
-            # Once we can turn right, we add THAT to the stack
-            current_node = current_node.right 
-            stack.append(current_node)
-            # Then left until
-        pass 
+        stack = []
+        def inorder(node): # Recursive inner function that we just need to use for inorder traversal.
+            if not node:
+                return # If the node is null, we stop
+            inorder(node.left) # We always go left as much as we can 
+            stack.append(node.data) # Then we append to the variable in the upper scope
+            inorder(node.right)
+        inorder(self.root) # Call it above.
+        return stack
 
     def insert_data(self, value_to_insert):
         if not self.root:
