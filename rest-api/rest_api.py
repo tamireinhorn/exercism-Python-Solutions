@@ -8,11 +8,8 @@ class RestAPI:
         new_database = {}
         if database:
             for entry in database['users']:
-                new_entry = {}
-                for user in entry.get('owes'):
-                    new_entry[user] = entry['owes'][user]
-                for user in entry.get('owed_by'):
-                    new_entry[user] = -entry['owed_by'][user]
+                new_entry = {user: entry['owes'][user] for user in entry.get('owes')}
+                new_entry.update({user: -entry['owed_by'][user] for user in entry.get('owed_by')})
                 new_database[entry['name']] = new_entry # The database is a dictionary whose keys are the names of the people in it.
         self.database = new_database
 
