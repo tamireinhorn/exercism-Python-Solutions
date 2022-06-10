@@ -18,10 +18,11 @@ class RestAPI:
              raise ValueError(f'Invalid request. GET only accepts the following requests: {VALID_GETS}.')
         if payload:
             payload = json.loads(payload)
-            return json.dumps({'users': [self.parse_database_return(user) for user in payload['users']]})
+            user_list = payload['users']
         else:
-            return json.dumps({'users': list(self.database)})
-    
+            user_list = self.database
+        return json.dumps({'users': [self.parse_database_return(user) for user in user_list]})
+
     def post(self, url: str, payload: str):
         payload = json.loads(payload)
         if url == '/add':
