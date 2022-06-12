@@ -1,6 +1,3 @@
-from collections import deque
-
-
 class TreeNode:
     def __init__(self, value: int, left=None, right=None):
         self.data = value
@@ -37,20 +34,16 @@ class BinarySearchTree:
             self.root = new_node
             return 
             # So if there is already a root, what do we do?
-        current_node = self.root
-        while current_node: # We have to traverse the tree until we hit a null node.
-            if value_to_insert > current_node.data: # A BST always follows the right for bigger left for smaller.
-                if current_node.right:
-                    current_node = current_node.right # We need to bubble down the tree until the null
-                else:
-                    current_node.right = new_node
-                    break
-            else: # Less or equal goes to the left subtree and bubbles down until avaliable.
-                if current_node.left:
-                    current_node = current_node.left
-                else:
-                    current_node.left = new_node
-                    break
-    
-    
-                
+        self.recursive_method(value_to_insert, self.root)
+        
+    def recursive_method(self, value_to_insert, current_node: TreeNode):
+        if value_to_insert > current_node.data: # We got to go right.
+            if not current_node.right:
+                current_node.right = TreeNode(value_to_insert) 
+            else:
+                self.recursive_method(value_to_insert, current_node.right) # Bubble down right
+        else:
+            if not current_node.left:
+                current_node.left = TreeNode(value_to_insert)
+            else:
+                self.recursive_method(value_to_insert, current_node.left) # Bubble down left
