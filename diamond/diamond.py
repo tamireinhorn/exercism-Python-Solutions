@@ -8,7 +8,7 @@ def rows(letter):
     answer = [f"{number_of_spaces * ' '}A{number_of_spaces * ' '}"] # Top and bottom is always A
     if letter == 'A':
         return answer
-    for diamond_letter, number in zip(ALPHABET[1:letter_index], range(letter_index)):
+    for diamond_letter in ALPHABET[1:letter_index]:
         number_of_spaces -= 1
         line = f"{number_of_spaces * ' '}{diamond_letter}"
         line = f"{line}{spaces_in_the_middle * ' '}{line[::-1]}"
