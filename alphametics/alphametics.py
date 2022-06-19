@@ -13,11 +13,11 @@ def solve(puzzle: str) -> dict[str, int]:
     avaliable_letters = {}
     elements = re.findall('\w+', puzzle)
     sizes = list(map(len, elements))
-    right_side = []
+    right_side = elements[-1]
     # Is there carryover to the first digit?
     if max(sizes[0:len(sizes)-1]) < sizes[-1]:
         # If there is, since everything is single digit, the first letter of the right side = 1
-        avaliable_letters[right_side[0]] = 1
+        avaliable_letters[right_side[0]] = '1'
         new_puzzle = re.sub(right_side[0], '1', deepcopy(puzzle))
         # Due to that carry, we also know that the second digit is 0.
         avaliable_letters[right_side[1]] = 0
@@ -25,5 +25,5 @@ def solve(puzzle: str) -> dict[str, int]:
     return avaliable_letters
 
 
-def equation_creation(left_side: list[str], right_side: str):
+def equation_creation(elements: list[str]):
     pass
