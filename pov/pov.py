@@ -29,7 +29,23 @@ class Tree:
             queue = queue[1:]
 
     def from_pov(self, from_node):
-        self.find_node(from_node)
+        if self.label == from_node:
+            return self
+        # For a simple one, you have parent -> [x, sibling]. So you run down a queue with BFS until you find the node
+        queue = [self]
+        stack = [self]
+        while queue:
+            first_of_the_line = queue[0]
+            queue += first_of_the_line.children
+            stack += first_of_the_line.children
+            if first_of_the_line.label == from_node:
+                break
+            queue = queue[1:]
+        # Once the node is found, you get it's parent, which should be the first guy in the stack?
+        papa = stack[0]
+        papa.children = list(filter(lambda node: node.label != from_node, papa.children))
+        new_tree = Tree(from_node, children= papa)
+        return new_tree
 
     def path_to(self, from_node, to_node):
         pass
