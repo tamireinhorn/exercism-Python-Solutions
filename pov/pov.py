@@ -34,7 +34,10 @@ class Tree:
         # For a simple one, you have parent -> [x, sibling]. So you run down a queue with BFS until you find the node
         queue = [self]
         stack = [self]
+        previous_first_of_the_line = None
+        first_of_the_line = None
         while queue:
+            previous_first_of_the_line = first_of_the_line
             first_of_the_line = queue[0]
             queue += first_of_the_line.children
             stack += first_of_the_line.children
@@ -42,10 +45,15 @@ class Tree:
                 break
             queue = queue[1:]
         # Once the node is found, you get it's parent, which should be the first guy in the stack?
+        # Only if the tree has a depth of 1. 
+        len_difference = len(stack) - len(queue)
         papa = stack[0]
         papa.children = list(filter(lambda node: node.label != from_node, papa.children))
-        new_tree = Tree(from_node, children= papa)
+        new_tree = Tree(from_node, children= [papa])
         return new_tree
+
+    def invert_node(self):
+        return Tree(label = self.children[0].label, children= [Tree(self.label)])
 
     def path_to(self, from_node, to_node):
         pass
