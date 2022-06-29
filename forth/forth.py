@@ -1,5 +1,5 @@
 from copy import copy
-
+import re 
 
 class StackUnderflowError(Exception):
     def __init__(self, message: str) -> None:
@@ -29,12 +29,27 @@ def _swap(stack: list[str]) -> list[str]:
         raise StackUnderflowError("Insufficient number of items in stack")
     return stack[0:len(stack) -2] + [stack[-1], stack[-2]]
 
+def _over(stack: list[str])-> list[str]:
+    if len(stack) < 2:
+        raise StackUnderflowError("Insufficient number of items in stack")
+    return stack + [stack[-2]]
 
-WORD_DICT = {'dup': _duplicate, 'drop': _drop, 'swap': _swap}
+WORD_DICT = {'dup': _duplicate, 'drop': _drop, 'swap': _swap, 'over': _over}
+
+
+def user_defined_function(input_data) -> list[str]:
+    for i in input_data[0:len(input_data) - 1]:
+        parsed_input_data = i.split(' ')
+        definition = parsed_input_data[1]
+        replacement = ' '.join(parsed_input_data[2:len(parsed_input_data) -1])
+    input_data[-1] = re.sub(definition, replacement, input_data[-1], flags= re.IGNORECASE)
+    return input_data
 
 
 def evaluate(input_data):
-    parsed_input_data = input_data[0].split(' ')
+    if len(input_data) > 1 and ':' in input_data[0]:
+        input_data = user_defined_function(input_data)
+    parsed_input_data = input_data[-1].split(' ')
     stack = []
     for item in parsed_input_data:
         if item.replace('-', '').isdigit():
@@ -48,3 +63,4 @@ def evaluate(input_data):
                 raise StackUnderflowError("Insufficient number of items in stack")
             stack = WORD_DICT[item.lower()](stack)
     return list(map(int, stack))
+
