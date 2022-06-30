@@ -62,5 +62,7 @@ def evaluate(input_data):
             if len(stack) == 0:
                 raise StackUnderflowError("Insufficient number of items in stack")
             stack = WORD_DICT[item.lower()](stack)
+        else:
+            raise ValueError('undefined operation')
     return list(map(int, stack))
 
