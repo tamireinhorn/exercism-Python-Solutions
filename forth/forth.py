@@ -38,16 +38,19 @@ WORD_DICT = {'dup': _duplicate, 'drop': _drop, 'swap': _swap, 'over': _over}
 
 
 def user_defined_function(input_data) -> list[str]:
-    for i in input_data[0:len(input_data) - 1]:
-        parsed_input_data = i.split(' ')
-        definition = parsed_input_data[1]
-        replacement = ' '.join(parsed_input_data[2:len(parsed_input_data) -1])
+    for i in input_data:
+        if ':' in i:
+            parsed_input_data = i.split(' ')
+            definition = parsed_input_data[1]
+            if definition.replace('-', '').isdigit():
+                raise ValueError('illegal operation')
+            replacement = ' '.join(parsed_input_data[2:len(parsed_input_data) -1])
     input_data[-1] = re.sub(definition, replacement, input_data[-1], flags= re.IGNORECASE)
     return input_data
 
 
 def evaluate(input_data):
-    if len(input_data) > 1 and ':' in input_data[0]:
+    if ':' in input_data[0]:
         input_data = user_defined_function(input_data)
     parsed_input_data = input_data[-1].split(' ')
     stack = []
