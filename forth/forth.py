@@ -45,6 +45,10 @@ def user_defined_function(input_data) -> list[str]:
             if definition.replace('-', '').isdigit():
                 raise ValueError('illegal operation')
             replacement = ' '.join(parsed_input_data[2:len(parsed_input_data) -1])
+    if definition in SUPPORTED_OPERANDS:
+        definition = f'\{definition}'
+    if replacement in SUPPORTED_OPERANDS:
+        replacement = f'\{replacement}'
     input_data[-1] = re.sub(definition, replacement, input_data[-1], flags= re.IGNORECASE)
     return input_data
 
