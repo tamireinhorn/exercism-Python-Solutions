@@ -202,9 +202,10 @@ class ForthTest(unittest.TestCase):
         self.assertEqual(
             evaluate([": foo 5 ;", ": bar foo ;", ": foo 6 ;", "bar foo"]), [5, 6]
         )
-
+        # Foo = 5, Bar = foo; Foo = 6. 
     def test_user_defined_words_can_define_word_that_uses_word_with_the_same_name(self):
         self.assertEqual(evaluate([": foo 10 ;", ": foo foo 1 + ;", "foo"]), [11])
+        # Foo = 10, Foo = Foo 1 +
 
     def test_user_defined_words_cannot_redefine_non_negative_numbers(self):
         with self.assertRaises(ValueError) as err:

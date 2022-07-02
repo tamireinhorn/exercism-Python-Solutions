@@ -1,4 +1,5 @@
 from copy import copy
+from operator import methodcaller
 import re 
 
 class StackUnderflowError(Exception):
@@ -38,36 +39,43 @@ WORD_DICT = {'dup': _duplicate, 'drop': _drop, 'swap': _swap, 'over': _over}
 
 
 def user_defined_function(input_data) -> list[str]:
+    replacement_dict = {}
+    replacement = ''
     for i in input_data:
         if ':' in i:
             parsed_input_data = i.split(' ')
             definition = parsed_input_data[1]
             if definition.replace('-', '').isdigit():
                 raise ValueError('illegal operation')
+            for index, value in enumerate(parsed_input_data[2:len(parsed_input_data) -1]):
+                parsed_input_data[2+index] = parsed_input_data[2+index].replace(definition, replacement)
             replacement = ' '.join(parsed_input_data[2:len(parsed_input_data) -1])
-    if definition in SUPPORTED_OPERANDS or replacement in SUPPORTED_OPERANDS:
+            if replacement in replacement_dict:
+                replacement = replacement_dict[replacement]
+            replacement_dict.update({definition: replacement})
+    for definition, replacement in replacement_dict.items():
         input_data[-1] = input_data[-1].replace(definition, replacement)
-    else:
-        input_data[-1] = re.sub(definition, replacement, input_data[-1], flags= re.IGNORECASE)
     return input_data
 
 
-def evaluate(input_data):
+def evaluate(input_list):
+    input_data = list(map(methodcaller('lower'), input_list))
     if ':' in input_data[0]:
         input_data = user_defined_function(input_data)
     parsed_input_data = input_data[-1].split(' ')
     stack = []
     for item in parsed_input_data:
+        item = item.lower()
         if item.replace('-', '').isdigit():
             stack.append(item)
         elif item in SUPPORTED_OPERANDS:
             if len(stack) < 2:
                 raise StackUnderflowError("Insufficient number of items in stack")
             stack = [operate(item, stack)]
-        elif item.lower() in WORD_DICT:
+        elif item in WORD_DICT:
             if len(stack) == 0:
                 raise StackUnderflowError("Insufficient number of items in stack")
-            stack = WORD_DICT[item.lower()](stack)
+            stack = WORD_DICT[item](stack)
         else:
             raise ValueError('undefined operation')
     return list(map(int, stack))
