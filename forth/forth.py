@@ -1,6 +1,5 @@
 from copy import copy
 from operator import methodcaller
-import re 
 
 class StackUnderflowError(Exception):
     def __init__(self, message: str) -> None:
@@ -47,7 +46,7 @@ def user_defined_function(input_data) -> list[str]:
             definition = parsed_input_data[1]
             if definition.replace('-', '').isdigit():
                 raise ValueError('illegal operation')
-            for index, value in enumerate(parsed_input_data[2:len(parsed_input_data) -1]):
+            for index, _ in enumerate(parsed_input_data[2:len(parsed_input_data) -1]):
                 parsed_input_data[2+index] = parsed_input_data[2+index].replace(definition, replacement)
             replacement = ' '.join(parsed_input_data[2:len(parsed_input_data) -1])
             if replacement in replacement_dict:
