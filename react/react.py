@@ -4,21 +4,28 @@ class InputCell:
     def __init__(self, initial_value):
         self._value = initial_value
     
-    @property
+    @property # This is the recommended way to use a property decorator, right above where the attribute will be returned.
     def value(self):
-        print('I got called here')
         return self._value
     
+    # In reality, property is an object with three methods, getter, setter and deleter.
+    # So when we specify value as a property, we can then create a value setter method with the same name, just by using the decorator above.
     @value.setter
     def value(self, new_value):
-        print('Setting new value_')
+        #TODO: If the new value is different than the old one, we should make the Compute cell value be done again. But how?
+        # The big issue here is that the Compute Cell is OUTSIDE of this scope. How do I call anything on it?
         self._value = new_value
 
 class ComputeCell:
     def __init__(self, inputs: list[InputCell], compute_function):
         self._inputs = [input.value for input in inputs]
-        self.value = compute_function(self._inputs)
+        self._function = compute_function
 
+
+    @property
+    def value(self):
+        return self._function(self._inputs)
+    
     def add_callback(self, callback):
         pass
 
