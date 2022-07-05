@@ -1,8 +1,8 @@
-
-
+CELL_LIST = []
 class InputCell:
     def __init__(self, initial_value):
         self._value = initial_value
+        CELL_LIST.append(self)
     
     @property # This is the recommended way to use a property decorator, right above where the attribute will be returned.
     def value(self):
@@ -20,14 +20,18 @@ class ComputeCell:
     def __init__(self, inputs: list[InputCell], compute_function):
         self._inputs = [input.value for input in inputs]
         self._function = compute_function
-
+        self._callbacks = {}
 
     @property
     def value(self):
         return self._function(self._inputs)
     
     def add_callback(self, callback):
-        pass
+        self._callbacks[callback] = callback
+        return callback
 
     def remove_callback(self, callback):
-        pass
+        try:
+            del self._callbacks[callback]
+        except:
+            raise KeyError
