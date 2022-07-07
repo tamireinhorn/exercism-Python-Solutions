@@ -195,7 +195,7 @@ class ReactTest(unittest.TestCase):
     def callback_factory(self, observer):
         def callback(observer, value):
             observer.append(value)
-        return partial(callback, observer)
+        return partial(callback, observer) # So callback factory creates, for the same observer, a function append a value to it.
 
 
 if __name__ == '__main__':
