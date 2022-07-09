@@ -4,3 +4,9 @@ def convert(input_grid):
     
     pass
 
+
+def recognize_number(grid):
+    pass
+# My solution idea is to separate in grids of 3x4, match them to numbers, so we would have like 2 functions. 
+
+
