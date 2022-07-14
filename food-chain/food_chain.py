@@ -19,8 +19,15 @@ def generate_verse(verse_number: int):
                     next_animal = f"{next_animal} that {SPIDER_EXTRA}"
                 verse.append(f"She swallowed the {animal} to catch the {next_animal}.")
             verse.append(END)
+    if verse_number == 1:
+        verse.append(END)
     return verse 
 
 
 def recite(start_verse, end_verse):
-    return generate_verse(start_verse)
+    full_verse = []
+    for verse_number in range(start_verse, end_verse+1):
+        full_verse += generate_verse(verse_number)
+        if start_verse != end_verse and verse_number < end_verse:
+            full_verse.append("")
+    return full_verse
