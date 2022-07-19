@@ -10,7 +10,7 @@ def _recursive_chain(dominoes: list[tuple[int, int]]):
     if len(dominoes) == 0:
         return dominoes
     if len(dominoes) == 1:
-        chainable = dominoes[0][0] == dominoes[0][1]
+        chainable = dominoes[0][0] == dominoes[0][1] # TODO, we could compare two dominoes, by looking at all 4 combinations and see if we can chain them.
         if chainable:
             return dominoes
         return 
