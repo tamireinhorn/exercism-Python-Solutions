@@ -54,12 +54,12 @@ class DominoesTest(unittest.TestCase):
         self.refute_correct_chain(input_dominoes, output_chain)
 
     def test_need_backtrack(self):
-        input_dominoes = [(1, 2), (2, 3), (3, 1), (2, 4), (2, 4)]
+        input_dominoes = [(1, 2), (2, 3), (3, 1), (2, 4), (2, 4)] # (2,4) (4,2) (2, 1) (1,3) (3,2)
         output_chain = can_chain(input_dominoes)
         self.assert_correct_chain(input_dominoes, output_chain)
 
     def test_separate_loops(self):
-        input_dominoes = [(1, 2), (2, 3), (3, 1), (1, 1), (2, 2), (3, 3)]
+        input_dominoes = [(1, 2), (2, 3), (3, 1), (1, 1), (2, 2), (3, 3)] # (3, 3) (3, 2) (2,2) (2,1)                (1,3)
         output_chain = can_chain(input_dominoes)
         self.assert_correct_chain(input_dominoes, output_chain)
 
