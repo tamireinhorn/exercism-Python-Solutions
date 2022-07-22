@@ -74,7 +74,7 @@ class ReactTest(unittest.TestCase):
 
         output.add_callback(callback1)
         input_.value = 2
-        self.assertEqual(observer, [])
+        self.assertEqual(observer, []) # We want the callback to only work if the COMPUTE VALUE changes.
         input_.value = 4
         self.assertEqual(observer[-1], 222)
 

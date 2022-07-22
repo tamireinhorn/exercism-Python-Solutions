@@ -16,7 +16,8 @@ class InputCell:
             self._value = new_value
             for dependent_cell in self._dependent_cells:
                 for callback in dependent_cell._callbacks:
-                    callback(dependent_cell.value)
+                    if dependent_cell.value != dependent_cell._value: # The callback only fires on change!
+                        callback(dependent_cell.value)
         
 
 class ComputeCell:
@@ -40,4 +41,4 @@ class ComputeCell:
         return callback
 
     def remove_callback(self, callback):
-        pass
+        self._callbacks.pop(callback, '')
