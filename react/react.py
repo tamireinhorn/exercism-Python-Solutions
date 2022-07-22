@@ -12,8 +12,6 @@ class InputCell:
     # So when we specify value as a property, we can then create a value setter method with the same name, just by using the decorator above.
     @value.setter
     def value(self, new_value):
-        #TODO: If the new value is different than the old one, we should make the Compute cell value be done again. But how?
-        # The big issue here is that the Compute Cell is OUTSIDE of this scope. How do I call anything on it?
         if new_value != self.value:
             self._value = new_value
             for dependent_cell in self._dependent_cells:
@@ -22,12 +20,13 @@ class InputCell:
         
 
 class ComputeCell:
-    def __init__(self, inputs: list[InputCell], compute_function):
-        for input_cell in inputs:
-            input_cell._dependent_cells.append(self)
+    def __init__(self, inputs: list[any], compute_function):
+        for cell in inputs:
+            cell._dependent_cells.append(self) # So you add to the cells, the current compute cell that depends on it!
         self._inputs = inputs
         self._function = compute_function
         self._callbacks = {}
+        self._dependent_cells = []
         self._value = self._function([v.value for v in self._inputs])
         # Now, we need to add to every one in 
 
