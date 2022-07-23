@@ -15,9 +15,8 @@ class InputCell:
         if new_value != self.value:
             self._value = new_value
             for dependent_cell in self._dependent_cells:
-                for callback in dependent_cell._callbacks:
-                    if dependent_cell.value != dependent_cell._value: # The callback only fires on change!
-                        callback(dependent_cell.value)
+                dependent_cell._update()
+                print(2)
         
 
 class ComputeCell:
@@ -25,16 +24,22 @@ class ComputeCell:
         for cell in inputs:
             cell._dependent_cells.append(self) # So you add to the cells, the current compute cell that depends on it!
         self._inputs = inputs
-        self._function = compute_function
         self._callbacks = {}
         self._dependent_cells = []
-        self._value = self._function([v.value for v in self._inputs])
+        self._calculate_value = lambda: compute_function([v.value for v in self._inputs])
+        self._value = self._calculate_value()
         # Now, we need to add to every one in 
 
     @property
     def value(self):
-        new_value =  self._function([v.value for v in self._inputs])
-        return new_value
+        return self._value
+    
+    def _update(self):
+        new_value = self._calculate_value()
+        if self._value != new_value: # Only updating on change
+            self._value = new_value # Upate the value
+            for callback in self._callbacks:
+                callback(new_value)
     
     def add_callback(self, callback):
         self._callbacks[callback] = callback
