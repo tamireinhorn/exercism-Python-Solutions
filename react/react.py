@@ -21,11 +21,11 @@ class InputCell:
 
 class ComputeCell:
     def __init__(self, inputs: list[any], compute_function):
+        self._dependent_cells = []
         for cell in inputs:
             cell._dependent_cells.append(self) # So you add to the cells, the current compute cell that depends on it!
         self._inputs = inputs
         self._callbacks = {}
-        self._dependent_cells = []
         self._calculate_value = lambda: compute_function([v.value for v in self._inputs])
         self._value = self._calculate_value()
         # Now, we need to add to every one in 
@@ -37,7 +37,7 @@ class ComputeCell:
     def _update(self):
         new_value = self._calculate_value()
         if self._value != new_value: # Only updating on change
-            self._value = new_value # Upate the value
+            self._value = new_value # Update the value
             for callback in self._callbacks:
                 callback(new_value)
     
