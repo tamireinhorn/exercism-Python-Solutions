@@ -32,7 +32,7 @@ class ComputeCell:
 
     @property
     def value(self):
-        return self._value
+        return self._calculate_value() # The value is updated when called!
     
     def _update(self):
         new_value = self._calculate_value()
