@@ -32,12 +32,14 @@ class ComputeCell:
 
     @property
     def value(self):
-        return self._calculate_value() # The value is updated when called!
+        return self._value # The value is updated when called!
     
     def _update(self):
         new_value = self._calculate_value()
         if self._value != new_value: # Only updating on change
             self._value = new_value # Update the value
+            for dependent_cell in self._dependent_cells: # Propagate the change.
+                dependent_cell._update()
             for callback in self._callbacks:
                 callback(new_value)
     
