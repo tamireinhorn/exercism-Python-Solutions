@@ -14,9 +14,10 @@ class InputCell:
     def value(self, new_value):
         if new_value != self.value:
             self._value = new_value
-            for dependent_cell in self._dependent_cells:
+            for dependent_cell in self._dependent_cells: # First, update every dependent cell from the input
                 dependent_cell._update()
-                print(2)
+            for dependent_cell in self._dependent_cells: # Then have the dependent cells propagate.
+                dependent_cell._propagate()
         
 
 class ComputeCell:
@@ -38,11 +39,16 @@ class ComputeCell:
         new_value = self._calculate_value()
         if self._value != new_value: # Only updating on change
             self._value = new_value # Update the value
-            for dependent_cell in self._dependent_cells: # Propagate the change.
-                dependent_cell._update()
-            for callback in self._callbacks:
-                callback(new_value)
+           
     
+    def _propagate(self):
+        current_value = self._value
+        for dependent_cell in self._dependent_cells: # Propagate the change.
+            dependent_cell._update()
+            dependent_cell._propagate()
+        for callback in self._callbacks: 
+            callback(self._value)
+
     def add_callback(self, callback):
         self._callbacks[callback] = callback
         return callback
