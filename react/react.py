@@ -44,7 +44,8 @@ class ComputeCell:
     
     def _propagate(self):
         for dependent_cell in self._dependent_cells: # Propagate the change.
-            dependent_cell._update() # Update dependent cells then keep propagating.
+            dependent_cell._update() # Update dependent cells and only then propagate.
+        for dependent_cell in self._dependent_cells:
             dependent_cell._propagate()
 
 
