@@ -39,15 +39,14 @@ class ComputeCell:
         new_value = self._calculate_value()
         if self._value != new_value: # Only updating on change
             self._value = new_value # Update the value
-           
+            for callback in self._callbacks: # If the cell was updated, then callback!
+                callback(self._value)
     
     def _propagate(self):
-        current_value = self._value
         for dependent_cell in self._dependent_cells: # Propagate the change.
-            dependent_cell._update()
+            dependent_cell._update() # Update dependent cells then keep propagating.
             dependent_cell._propagate()
-        for callback in self._callbacks: 
-            callback(self._value)
+
 
     def add_callback(self, callback):
         self._callbacks[callback] = callback
