@@ -22,6 +22,27 @@ class SatelliteTest(unittest.TestCase):
         expected = {"v": "a", "l": {}, "r": {}}
         self.assertEqual(tree_from_traversals(preorder, inorder), expected)
 
+    def test_simple_tree(self):
+        inorder = ["i", "a"]
+        preorder = ["a", "i"]
+
+        expected = {
+            "v": "a",
+            "l": {"v": "i", "l": {}, "r": {}},
+            "r": {}
+        }
+        self.assertEqual(tree_from_traversals(preorder, inorder), expected)
+    
+    def test_another_simple_tree(self):
+        inorder = ["a", "c"]
+        preorder = ["a", "c"]
+        expected = {
+            "v": "a",
+            "l": {},
+            "r": {"v": "c", "l": {}, "r": {}}
+        }
+        self.assertEqual(tree_from_traversals(preorder, inorder), expected)
+    
     def test_tree_with_many_items(self):
         preorder = ["a", "i", "x", "f", "r"]
         inorder = ["i", "a", "f", "x", "r"]
@@ -37,31 +58,6 @@ class SatelliteTest(unittest.TestCase):
         }
         self.assertEqual(tree_from_traversals(preorder, inorder), expected)
 
-    def test_simple_tree(self):
-        inorder = ["1", "2"]
-        preorder = ["2", "1"]
-
-        expected = {
-            "v": "2",
-            "l": "1",
-            "r": {}
-        }
-        self.assertEqual(tree_from_traversals(preorder, inorder), expected)
-
-    def test_complex_tree(self):
-        inorder = ["1", "2", "3", "5", "6", "7"]
-        preorder = ['2', '1', '3', '6', '5', '7']
-        expected = { "v": "4", 
-                    "l": {"v": "2", 
-                            "l": {"v": "1", "l": {}, "r": {}},
-                            "r": {"v": "3", "l": {}, "r": {}}},
-                    "r": {"v": "6",
-                            "l": {"v": "5", "l": {}, "r": {}},
-                            "r": {"v": "7", "l": {}, "r": {}}
-                    }
-
-        }
-        self.assertEqual(tree_from_traversals(preorder, inorder), expected)
 
     def test_reject_traversals_of_different_length(self):
         preorder = ["a", "b"]
