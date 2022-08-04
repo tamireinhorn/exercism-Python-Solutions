@@ -8,6 +8,8 @@ license = "MIT]"
 [tool.poetry.dependencies]
 python = "^3.7"
 flake8 = "^4.0.1"
+regex = "^2022.7.25"
+pytest = "^7.1.2"
 
 [tool.poetry.dev-dependencies]
 
