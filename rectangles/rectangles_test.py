@@ -36,7 +36,13 @@ class RectanglesTest(unittest.TestCase):
         self.assertEqual(rectangles(["++", "++"]), 1)
 
     def test_only_complete_rectangles_are_counted(self):
-        self.assertEqual(rectangles(["  +-+", "    |", "+-+-+", "| | -", "+-+-+"]), 1)
+        self.assertEqual(rectangles(
+            [
+                "  +-+", 
+                "    |", 
+                "+-+-+", 
+                "| | -", 
+                "+-+-+"]), 1)
 
     def test_rectangles_can_be_of_different_sizes(self):
         self.assertEqual(
