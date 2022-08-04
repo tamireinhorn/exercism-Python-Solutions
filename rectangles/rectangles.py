@@ -1,19 +1,19 @@
 import re
-
-#|
+#|\
 def rectangles(strings: list[str]) -> int:
-    edge_list = []
-    line_list = []
-    for string in strings:
-        edge_match = re.finditer('\+', string)
-        # You start with edges, and you expect to see a line from them until a next set of equal edges.
-        if edge_match:
-            edge_list.append([match.start() for match in edge_match])
-        line_match = re.finditer('\|', string)
-        if line_match:
-            line_list.append([match.start() for match in line_match])
-        pass
-    pass
+    counter = 0
+    edge_pattern = re.compile('\+-*(?=\+)')
+    corners = []
+    for row in strings:
+        edges = list(re.finditer(edge_pattern, row))
+        if len(edges) > 1:
+            long_edge = (edges[0].start(), edges[-1].end())
+            if long_edge in corners:
+                counter += 1
+            corners.append(long_edge)
+        for match in edges:
+            counter += len(list(i for i in corners if i == match.span()))
+            corners.append(match.span())
+        print(2)
 
-
-# I think a stack like the one for the bracket balancing makes a lot of sense
+    return counter
