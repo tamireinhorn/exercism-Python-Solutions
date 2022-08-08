@@ -1,34 +1,28 @@
 from collections import namedtuple
 import re
 
+Edge = namedtuple("Edge", ["row", "start", "end"])
+def _edge_ordering(strings: list[str]):
+    all_corners = []
+    for row_index, row in enumerate(strings):
+        edges = [i.start() for i in re.finditer('\+', row)]
+        for index, edge in enumerate(edges):
+            row_corners = [Edge(row_index, edge, next_edge) for next_edge in edges[index+1:]]
+            all_corners += row_corners
+    return all_corners
+
 
 def rectangles(strings: list[str]) -> int:
-    Edge = namedtuple("Edge", ["row", "start", "end"])
+   
     true_counter = 0
-    edge_pattern = re.compile(
-        "\+-*(?=\+)"
-    )  # An edge is a + sign, followed by maybe a few -, and then finished by a +.
     border_pattern = re.compile(
         "\+\|*(?=\+)"
     )  # A border is a + sign, followed by maybe a few -, and then finished by a +.
     transposed = ["".join(i) for i in map(list, zip(*strings))]
     # For every pair of corners of a rectangle, we need to make sure that the lines below it are either + or |.
-    all_corners = []
-    all_borders = []
-    for index, row in enumerate(strings):
-        edges = list(re.finditer(edge_pattern, row))
-        row_corners = [Edge(index, i.start(), i.end()) for i in edges]
-        if len(edges) > 1:
-            long_edge = Edge(index, edges[0].start(), edges[-1].end())
-            row_corners.append(long_edge)
-        all_corners += row_corners
-    for index, row in enumerate(transposed):
-        borders = list(re.finditer(border_pattern, row))
-        column_corners = [Edge(index, i.start(), i.end()) for i in borders]
-        if len(borders) > 1:
-            long_border = Edge(index, borders[0].start(), borders[-1].end())
-            column_corners.append(long_border)
-        all_borders += column_corners
+    all_corners = _edge_ordering(strings)
+    all_borders = _edge_ordering(transposed)
+   
     for edge in all_corners:
         # Get all candidates to be the closing part of the rectangle:
         lower_edges = filter(
@@ -48,3 +42,7 @@ def rectangles(strings: list[str]) -> int:
             print(lower_edge)
         print(edge)
     return true_counter
+
+
+    # The problem right now is with borders that are corners stacked up!
+    
