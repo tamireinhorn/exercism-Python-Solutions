@@ -1,24 +1,24 @@
 class Record:
-    def __init__(self, record_id, parent_id):
+    def __init__(self, record_id: int, parent_id: int):
         self.record_id = record_id
         self.parent_id = parent_id
 
 
 class Node:
-    def __init__(self, node_id):
+    def __init__(self, node_id: int):
         self.node_id = node_id
         self.children = []
 
 
-def BuildTree(records):
+def BuildTree(records: list[Record]):
     root = None
-    records.sort(key=lambda x: x.record_id)
-    ordered_id = [i.record_id for i in records]
-    if records:
-        if ordered_id[-1] != len(ordered_id) - 1:
-            raise ValueError('broken tree')
-        if ordered_id[0] != 0:
-            raise ValueError('invalid')
+    records.sort(key=lambda x: x.record_id) # Sort the list of records
+    ordered_id = [i.record_id for i in records] # Then get their id, in order.
+    if records: # If the list is not empty
+        if ordered_id[-1] != len(ordered_id) - 1: # We expect that the last item's id is the length of the list.
+            raise ValueError("Record id is invalid or out of order.")
+        if ordered_id[0] != 0: # We also expect that there is a 0 record, which will be the root.
+            raise ValueError("Record id is invalid or out of order.")
     trees = []
     parent = {}
     for i in range(len(ordered_id)):
@@ -26,7 +26,7 @@ def BuildTree(records):
             if ordered_id[i] == j.record_id:
                 if j.record_id == 0:
                     if j.parent_id != 0:
-                        raise ValueError('error!')
+                        raise ValueError("Node record_id should be smaller than it's parent_id.")
                 if j.record_id < j.parent_id:
                     raise ValueError("Node record_id should be smaller than it's parent_id.")
                 if j.record_id == j.parent_id:
