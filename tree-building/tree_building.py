@@ -21,15 +21,11 @@ def BuildTree(records: list[Record]):
             raise ValueError("Record id is invalid or out of order.")
     trees = []
     parent = {}
-    for i, j  in zip(range(len(ordered_id)), records): # Updated this to a zip.
-            if j.record_id == 0:
-                if j.parent_id != 0:
-                    raise ValueError("Node record_id should be smaller than it's parent_id.")
-            if j.record_id < j.parent_id:
+    for i, j in zip(range(len(ordered_id)), records): # Updated this to a zip. This ONLY serves for errors, and then creating the list of Nodes of ordered ids.
+            if j.record_id < j.parent_id: # The error message in the exercise is really weird. The record id is ALWAYS larger than parent, except root.
                 raise ValueError("Node record_id should be smaller than it's parent_id.")
-            if j.record_id == j.parent_id:
-                if j.record_id != 0:
-                    raise ValueError("Only root should have equal record and parent id.")
+            if j.record_id == j.parent_id and j.record_id != 0:
+                raise ValueError("Only root should have equal record and parent id.")
             trees.append(Node(ordered_id[i]))
     for i in range(len(ordered_id)):
         for j in trees:
