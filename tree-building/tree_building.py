@@ -3,32 +3,31 @@ class Record:
         self.record_id = record_id
         self.parent_id = parent_id
 
-
 class Node:
     def __init__(self, node_id: int):
         self.node_id = node_id
         self.children = []
 
+def createNode(record: Record):
+    return Node(record.record_id)
 
 def BuildTree(records: list[Record]):
     if not records:
         return
     records.sort(key=lambda x: x.record_id) # Sort the list of records
-    ordered_id = [i.record_id for i in records] # Then get their id, in order.
-    if ordered_id[-1] != len(ordered_id) - 1: # We expect that the last item's id is the length of the list.
+    # Neither of the checks below require ordering, just some clever min and max.
+    if max(records, key=lambda x: x.record_id).record_id != len(records) - 1: # We expect that the last item's id is the length of the list.
         raise ValueError("Record id is invalid or out of order.")
-    if ordered_id[0] != 0: # We also expect that there is a 0 record, which will be the root.
+    if min(records, key=lambda x: x.record_id).record_id != 0: # We also expect that there is a 0 record, which will be the root.
         raise ValueError("Record id is invalid or out of order.")
-    trees = []
+    trees = list(map(createNode, records))
     parent = {}
-    for index, record in enumerate(records): # Updated this to a zip. This ONLY serves for errors, and then creating the list of Nodes of ordered ids.
+    for index, parent in enumerate(trees): # Iterate over the range of ids.
+        for record in records: # Now, iterate over the sorted records.
             if record.record_id < record.parent_id: # The error message in the exercise is really weird. The record id is ALWAYS larger than parent, except root.
                 raise ValueError("Node record_id should be smaller than it's parent_id.")
             if record.record_id == record.parent_id and record.record_id != 0:
                 raise ValueError("Only root should have equal record and parent id.")
-            trees.append(Node(ordered_id[index]))
-    for index, parent in enumerate(trees): # Iterate over the range of ids.
-        for record in records: # Now, iterate over the sorted records.
             if record.parent_id == index: # If we are on i == j, then:
                 for tree in trees: # Iterate over fucking trees again
                     if record.record_id == tree.node_id and tree.node_id != 0: # If it's not the root and the current ordered record's id is the same as the Node, then that's the child.
