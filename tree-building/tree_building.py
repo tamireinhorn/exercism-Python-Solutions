@@ -22,6 +22,10 @@ def BuildTree(records: list[Record]):
     records.sort(key=lambda x: x.record_id) # Sort the list of records (this is still necessary)
     nodes = list(map(createNode, records))
     parent = {}
+    for parent_record in records:
+        parent = parent_record.parent_id
+        for child_record in records:
+            pass 
     # I guess the idea here is the only thing stopping me. Although I can't see this not having two loops. 
     for index, parent in enumerate(nodes): # Iterate over all the nodes.
         for record in records: # Now, iterate over the sorted records.
