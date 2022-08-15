@@ -19,15 +19,20 @@ def BuildTree(records: list[Record]):
         raise ValueError("Record id is invalid or out of order.")
     if min(records, key=lambda x: x.record_id).record_id != 0: # We also expect that there is a 0 record, which will be the root.
         raise ValueError("Record id is invalid or out of order.")
-    records.sort(key=lambda x: x.parent_id) # Sort the list of records (this is still necessary)
+    records.sort(key=lambda x: x.parent_id, reverse= True) # Sort the list of records (this is still necessary)
     nodes = list(map(createNode, records))
     parent = -1
+    # Iterate over the records, ordered by parents in reverse.
+    # That way, for for something thats like 0 -> 1 -> 2 -> (3, 4)
+    # you will start building the tree from bottom up
     # What if we did this:
     # Iterate over the records. Since they are ordered by parent, we have lists of children basically ready.
-    # So we append the children list directly
+    # So we append the children list directly and thus we get it done?
     for record in records:
         if record.record_id < record.parent_id: # The error message in the exercise is really weird. The record id is ALWAYS larger than parent, except root.
             raise ValueError("Node record_id should be smaller than it's parent_id.")
+        if record.record_id == record.parent_id and record.record_id != 0:
+            raise ValueError("Only root should have equal record and parent id.")
         if record.parent_id != parent:
             new_node = Node(parent)
             new_node.children = children # Create the Node with all in it
