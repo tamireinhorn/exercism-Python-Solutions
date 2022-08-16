@@ -22,18 +22,28 @@ def BuildTree(records: list[Record]):
     records.sort(key=lambda x: x.parent_id, reverse= True) # Sort the list of records (this is still necessary)
     nodes = list(map(createNode, records))
     parent = -1
+    children = []
     # Iterate over the records, ordered by parents in reverse.
     # That way, for for something thats like 0 -> 1 -> 2 -> (3, 4)
     # you will start building the tree from bottom up
     # What if we did this:
     # Iterate over the records. Since they are ordered by parent, we have lists of children basically ready.
     # So we append the children list directly and thus we get it done?
+    # It seems undoable to have less than one loop.
+    node_dict = {}
+    for parent in list(set((record.record_id for record in records)))[::-1]:
+        children = list(filter(lambda record: record.parent_id == parent and record.record_id != parent, records))
+        new_node = Node(parent)
+        new_node.children = children
+        node_dict[parent] = new_node
+        #
+        breakpoint()
     for record in records:
         if record.record_id < record.parent_id: # The error message in the exercise is really weird. The record id is ALWAYS larger than parent, except root.
             raise ValueError("Node record_id should be smaller than it's parent_id.")
         if record.record_id == record.parent_id and record.record_id != 0:
             raise ValueError("Only root should have equal record and parent id.")
-        if record.parent_id != parent:
+        if record.parent_id != parent and parent > 0:
             new_node = Node(parent)
             new_node.children = children # Create the Node with all in it
             # Now update our variables.
@@ -41,6 +51,7 @@ def BuildTree(records: list[Record]):
             children = [record.record_id]
         else:
             children.append(record.record_id)
+            parent = record.parent_id
 
     # I guess the idea here is the only thing stopping me. Although I can't see this not having two loops. 
     # for index, parent in enumerate(nodes): # Iterate over all the nodes.
