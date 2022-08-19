@@ -11,6 +11,7 @@ flake8 = "^4.0.1"
 regex = "^2022.7.25"
 pytest = "^7.1.2"
 black = "^22.6.0"
+mypy = "^0.971"
 
 [tool.poetry.dev-dependencies]
 
