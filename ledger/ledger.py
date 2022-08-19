@@ -16,19 +16,18 @@ def create_entry(date, description, change) -> LedgerEntry:
                         description = description, change = change)
 
 
+def format_header(locale: str) -> str:
+    if locale == 'en_US':
+        table = f"Date{' ' * 7}| Description{' ' * 15}| Change{' ' * 7}"
+    elif locale == 'nl_NL':
+        table = f"Datum{' ' * 6}| Omschrijving{' ' * 14}| Verandering{' ' * 2}"
+    return table
+
+
 def format_entries(currency, locale: str, entries):
     if locale == 'en_US':
         # Generate Header Row
-        table = 'Date'
-        for _ in range(7):
-            table += ' '
-        table += '| Description'
-        for _ in range(15):
-            table += ' '
-        table += '| Change'
-        for _ in range(7):
-            table += ' '
-
+        table = format_header(locale)
         while len(entries) > 0:
             table += '\n'
 
@@ -161,17 +160,7 @@ def format_entries(currency, locale: str, entries):
                 table += change_str
         return table
     elif locale == 'nl_NL':
-        # Generate Header Row
-        table = 'Datum'
-        for _ in range(6):
-            table += ' '
-        table += '| Omschrijving'
-        for _ in range(14):
-            table += ' '
-        table += '| Verandering'
-        for _ in range(2):
-            table += ' '
-
+        table = format_header(locale)
         while len(entries) > 0:
             table += '\n'
 
