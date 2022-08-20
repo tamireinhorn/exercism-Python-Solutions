@@ -37,27 +37,25 @@ def format_entries(currency, locale: str, entries):
                 entry = entries[i]
                 if min_entry_index < 0:
                     min_entry_index = i
-                    continue
+                    
                 min_entry = entries[min_entry_index]
                 if entry.date < min_entry.date:
                     min_entry_index = i
-                    continue
-                if (
+                    
+                elif (
                     entry.date == min_entry.date and
                     entry.change < min_entry.change
                 ):
                     min_entry_index = i
-                    continue
-                if (
+                    
+                elif (
                     entry.date == min_entry.date and
                     entry.change == min_entry.change and
                     entry.description < min_entry.description
                 ):
                     min_entry_index = i
-                    continue
-            entry = entries[min_entry_index]
-            entries.pop(min_entry_index)
-
+                    
+            entry =  entries.pop(min_entry_index)
             # Write entry date to table
             month = entry.date.month
             month = str(month)
@@ -140,8 +138,7 @@ def format_entries(currency, locale: str, entries):
                     change_str += '0'
                 else:
                     while True:
-                        change_str += euro_parts[0]
-                        euro_parts.pop(0)
+                        change_str += euro_parts.pop(0)
                         if len(euro_parts) == 0:
                             break
                         change_str += ','
@@ -170,27 +167,22 @@ def format_entries(currency, locale: str, entries):
                 entry = entries[i]
                 if min_entry_index < 0:
                     min_entry_index = i
-                    continue
                 min_entry = entries[min_entry_index]
                 if entry.date < min_entry.date:
                     min_entry_index = i
-                    continue
-                if (
+                elif (
                     entry.date == min_entry.date and
                     entry.change < min_entry.change
                 ):
                     min_entry_index = i
-                    continue
-                if (
+                    
+                elif (
                     entry.date == min_entry.date and
                     entry.change == min_entry.change and
                     entry.description < min_entry.description
                 ):
                     min_entry_index = i
-                    continue
-            entry = entries[min_entry_index]
-            entries.pop(min_entry_index)
-
+            entry = entries.pop(min_entry_index)
             # Write entry date to table
             day = entry.date.day
             day = str(day)
@@ -240,8 +232,7 @@ def format_entries(currency, locale: str, entries):
                     change_str += '0'
                 else:
                     while True:
-                        change_str += dollar_parts[0]
-                        dollar_parts.pop(0)
+                        change_str += dollar_parts.pop(0)
                         if len(dollar_parts) == 0:
                             break
                         change_str += '.'
@@ -267,9 +258,8 @@ def format_entries(currency, locale: str, entries):
                 if len(euro_parts) == 0:
                     change_str += '0'
                 else:
-                    while True:
-                        change_str += euro_parts[0]
-                        euro_parts.pop(0)
+                    while len(euro_parts) > 0:
+                        change_str += euro_parts.pop(0)
                         if len(euro_parts) == 0:
                             break
                         change_str += '.'
