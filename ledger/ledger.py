@@ -93,11 +93,11 @@ def find_next_entry(entries: list[LedgerEntry]) -> int:
             min_entry_index = i
     return min_entry_index
 
-def format_currency(entry_change: int, locale: str):
+def format_currency(entry_change: int, locale: str, currency: str):
     # function just for locale, for now. Seems easier.
     # Or maybe for the cents part idk
     cents_separator, decimal_separator = SEPARATOR_DICT[locale]
-    currency_str = str(entry_change)
+    currency_str = str(entry_change).removeprefix('-')
     # Pad the cents part:
     if abs(entry_change) <= 10:
         if entry_change < 0:
@@ -107,7 +107,25 @@ def format_currency(entry_change: int, locale: str):
         currency_str = currency_str.rjust(size, '0')
     currency_list = list(currency_str)
     currency_list.insert(-2, cents_separator) # Add cent separator.
-    pass
+    number_of_commas = (len(str(abs(entry_change))) // 3) - 1
+    for i in range(number_of_commas): # This inserts the decimal separator every 3 characters from the right. (not counting cents)
+        currency_list.insert(-3 -3*(i+1), decimal_separator)
+    currency_symbol = CURRENCY_DICT[currency]
+    if locale == 'nl_NL': # This locale pads the currency symbol.
+        currency_symbol = currency_symbol.ljust(2)
+    if currency_list[0] == '.':
+        currency_list.insert(0, '0')
+    currency_list.insert(0, currency_symbol)
+    currency_ledger = ''.join(currency_list)
+    if entry_change < 0:
+        if locale == 'en_US':
+            currency_ledger = f'({currency_ledger})'
+        elif locale == 'nl_NL':
+            pass
+    else:
+        currency_ledger += ' '
+    currency_ledger = currency_ledger.rjust(13)
+    return currency_ledger
 
 
 def format_entries(currency, locale: str, entries: list[LedgerEntry]):
@@ -121,70 +139,7 @@ def format_entries(currency, locale: str, entries: list[LedgerEntry]):
             table += format_date(locale, entry.date) # Simplify date processing to another function, tidier as well.
             table += ' | '
             table += format_description(entry.description)
-            # Write entry change to table
-            if currency == 'USD':
-                change_str = ''
-                if entry.change < 0:
-                    change_str = '('
-                change_str += '$'
-                change_dollar = abs(int(entry.change / 100.0))
-                dollar_parts = []
-                while change_dollar > 0:
-                    dollar_parts.insert(0, str(change_dollar % 1000))
-                    change_dollar = change_dollar // 1000
-                if len(dollar_parts) == 0:
-                    change_str += '0'
-                else:
-                    while True:
-                        change_str += dollar_parts[0]
-                        dollar_parts.pop(0)
-                        if len(dollar_parts) == 0:
-                            break
-                        change_str += ','
-                change_str += '.'
-                change_cents = abs(entry.change) % 100
-                change_cents = str(change_cents)
-                if len(change_cents) < 2:
-                    change_cents = '0' + change_cents
-                change_str += change_cents
-                if entry.change < 0:
-                    change_str += ')'
-                else:
-                    change_str += ' '
-                while len(change_str) < 13:
-                    change_str = ' ' + change_str
-                table += change_str
-            elif currency == 'EUR':
-                change_str = ''
-                if entry.change < 0:
-                    change_str = '('
-                change_str += u'€'
-                change_euro = abs(int(entry.change / 100.0))
-                euro_parts = []
-                while change_euro > 0:
-                    euro_parts.insert(0, str(change_euro % 1000))
-                    change_euro = change_euro // 1000
-                if len(euro_parts) == 0:
-                    change_str += '0'
-                else:
-                    while True:
-                        change_str += euro_parts.pop(0)
-                        if len(euro_parts) == 0:
-                            break
-                        change_str += ','
-                change_str += '.'
-                change_cents = abs(entry.change) % 100
-                change_cents = str(change_cents)
-                if len(change_cents) < 2:
-                    change_cents = '0' + change_cents
-                change_str += change_cents
-                if entry.change < 0:
-                    change_str += ')'
-                else:
-                    change_str += ' '
-                while len(change_str) < 13:
-                    change_str = ' ' + change_str
-                table += change_str
+            table += format_currency(entry.change, locale, currency)
     elif locale == 'nl_NL':
         table = format_header(locale)
         while len(entries) > 0:
