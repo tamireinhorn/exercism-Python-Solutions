@@ -69,6 +69,33 @@ def format_date(locale: str, date: str) -> str:
         raise ValueError("Location not recognized.")
     return date_str
 
+
+def find_next_entry(entries: list[LedgerEntry]) -> int:
+    min_entry_index = -1
+    for i in range(len(entries)):
+        entry = entries[i]
+        if min_entry_index < 0:
+            min_entry_index = i
+            
+        min_entry = entries[min_entry_index]
+        if entry.date < min_entry.date:
+            min_entry_index = i
+            
+        elif (
+            entry.date == min_entry.date and
+            entry.change < min_entry.change
+        ):
+            min_entry_index = i
+            
+        elif (
+            entry.date == min_entry.date and
+            entry.change == min_entry.change and
+            entry.description < min_entry.description
+        ):
+            min_entry_index = i
+    return min_entry_index
+
+
 def format_entries(currency, locale: str, entries: list[LedgerEntry]):
     if locale == 'en_US':
         # Generate Header Row
@@ -77,29 +104,7 @@ def format_entries(currency, locale: str, entries: list[LedgerEntry]):
             table += '\n'
 
             # Find next entry in order
-            min_entry_index = -1
-            for i in range(len(entries)):
-                entry = entries[i]
-                if min_entry_index < 0:
-                    min_entry_index = i
-                    
-                min_entry = entries[min_entry_index]
-                if entry.date < min_entry.date:
-                    min_entry_index = i
-                    
-                elif (
-                    entry.date == min_entry.date and
-                    entry.change < min_entry.change
-                ):
-                    min_entry_index = i
-                    
-                elif (
-                    entry.date == min_entry.date and
-                    entry.change == min_entry.change and
-                    entry.description < min_entry.description
-                ):
-                    min_entry_index = i
-                    
+            min_entry_index = find_next_entry(entries)
             entry =  entries.pop(min_entry_index)
             table += format_date(locale, entry.date) # Simplify date processing to another function, tidier as well.
             table += ' | '
@@ -175,26 +180,7 @@ def format_entries(currency, locale: str, entries: list[LedgerEntry]):
             table += '\n'
 
             # Find next entry in order
-            min_entry_index = -1
-            for i in range(len(entries)):
-                entry = entries[i]
-                if min_entry_index < 0:
-                    min_entry_index = i
-                min_entry = entries[min_entry_index]
-                if entry.date < min_entry.date:
-                    min_entry_index = i
-                elif (
-                    entry.date == min_entry.date and
-                    entry.change < min_entry.change
-                ):
-                    min_entry_index = i
-                    
-                elif (
-                    entry.date == min_entry.date and
-                    entry.change == min_entry.change and
-                    entry.description < min_entry.description
-                ):
-                    min_entry_index = i
+            min_entry_index = find_next_entry(entries)
             entry = entries.pop(min_entry_index)
             table += format_date(locale, entry.date)
             table += ' | '
