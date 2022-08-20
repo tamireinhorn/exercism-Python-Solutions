@@ -2,6 +2,7 @@
 from datetime import datetime
 
 
+
 class LedgerEntry:
     def __init__(self, date, description, change):
         # No reason parameters can't come in the init, modifying outside of scopes without setters is weird.
@@ -11,17 +12,33 @@ class LedgerEntry:
 
 
 def create_entry(date, description, change) -> LedgerEntry:
-    # Shortened this to a oneliner.
+
     return LedgerEntry(date =  datetime.strptime(date, '%Y-%m-%d'), 
                         description = description, change = change)
 
 
 def format_header(locale: str) -> str:
+    """Creates a header for the ledger table based on the locale.
+
+    Args:
+        locale (str): The locale of the ledger, hence dictating the name of the columns.
+
+    Returns:
+        str: Returns the header of the table as a string.
+    """
     if locale == 'en_US':
         table = f"Date{' ' * 7}| Description{' ' * 15}| Change{' ' * 7}"
     elif locale == 'nl_NL':
         table = f"Datum{' ' * 6}| Omschrijving{' ' * 14}| Verandering{' ' * 2}"
     return table
+
+
+def truncate_entry(entry: LedgerEntry):
+    processed_entry = entry.description
+    if len(processed_entry) > 25:
+            processed_entry = processed_entry[:22].rjust(25, '.')
+    processed_entry += ' | '
+    return processed_entry
 
 
 def format_entries(currency, locale: str, entries):
@@ -90,7 +107,7 @@ def format_entries(currency, locale: str, entries):
                     else:
                         table += ' '
             table += ' | '
-
+            truncate = truncate_entry(entry)
             # Write entry change to table
             if currency == 'USD':
                 change_str = ''
