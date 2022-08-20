@@ -4,15 +4,15 @@ from datetime import datetime
 
 
 class LedgerEntry:
-    def __init__(self, date, description, change):
+    def __init__(self, date: str, description: str, change):
         # No reason parameters can't come in the init, modifying outside of scopes without setters is weird.
         self.date = date
-        self.description = format_description(description)
+        self.description = description
         self.change = change
 
-def create_entry(date, description, change) -> LedgerEntry:
+def create_entry(date: str, description: str, change) -> LedgerEntry:
 
-    return LedgerEntry(date =  datetime.strptime(date, '%Y-%m-%d'), 
+    return LedgerEntry(date =  date, 
                         description = description, change = change)
 
 
@@ -50,6 +50,25 @@ def format_description(description: str) -> str:
     return processed_entry
 
 
+def format_date(locale: str, date: str) -> str:
+    """Formats the date to the locale appropriate format.
+
+    Args:
+        locale (str): The string specifying the locale.
+        date (str): The date string to be formated. Should be in format: '%Y-%m-%d'
+
+    Returns:
+        str: Formatted date to be put into ledger.
+    """
+    year, month, day = date.split('-')
+    if locale == 'en_US':
+        date_str = f"{month.rjust(2, '0')}/{day.rjust(2, '0')}/{year.rjust(4, '0')}"
+    elif locale == 'nl_NL':
+        date_str = f"{day.rjust(2, '0')}-{month.rjust(2, '0')}-{year.rjust(4, '0')}"
+    else:
+        raise ValueError("Location not recognized.")
+    return date_str
+
 def format_entries(currency, locale: str, entries: list[LedgerEntry]):
     if locale == 'en_US':
         # Generate Header Row
@@ -82,27 +101,9 @@ def format_entries(currency, locale: str, entries: list[LedgerEntry]):
                     min_entry_index = i
                     
             entry =  entries.pop(min_entry_index)
-            # Write entry date to table
-            month = entry.date.month
-            month = str(month)
-            if len(month) < 2:
-                month = '0' + month
-            date_str = month
-            date_str += '/'
-            day = entry.date.day
-            day = str(day)
-            if len(day) < 2:
-                day = '0' + day
-            date_str += day
-            date_str += '/'
-            year = entry.date.year
-            year = str(year)
-            while len(year) < 4:
-                year = '0' + year
-            date_str += year
-            table += date_str
+            table += format_date(locale, entry.date) # Simplify date processing to another function, tidier as well.
             table += ' | '
-            table += entry.description
+            table += format_description(entry.description)
             # Write entry change to table
             if currency == 'USD':
                 change_str = ''
@@ -195,30 +196,12 @@ def format_entries(currency, locale: str, entries: list[LedgerEntry]):
                 ):
                     min_entry_index = i
             entry = entries.pop(min_entry_index)
-            # Write entry date to table
-            day = entry.date.day
-            day = str(day)
-            if len(day) < 2:
-                day = '0' + day
-            date_str = day
-            date_str += '-'
-            month = entry.date.month
-            month = str(month)
-            if len(month) < 2:
-                month = '0' + month
-            date_str += month
-            date_str += '-'
-            year = entry.date.year
-            year = str(year)
-            while len(year) < 4:
-                year = '0' + year
-            date_str += year
-            table += date_str
+            table += format_date(locale, entry.date)
             table += ' | '
 
             # Write entry description to table
             # Truncate if necessary
-            table += entry.description
+            table += format_description(entry.description)
             
             # Write entry change to table
             if currency == 'USD':
