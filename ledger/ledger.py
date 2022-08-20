@@ -7,9 +7,8 @@ class LedgerEntry:
     def __init__(self, date, description, change):
         # No reason parameters can't come in the init, modifying outside of scopes without setters is weird.
         self.date = date
-        self.description = description
+        self.description = format_description(description)
         self.change = change
-
 
 def create_entry(date, description, change) -> LedgerEntry:
 
@@ -33,15 +32,25 @@ def format_header(locale: str) -> str:
     return table
 
 
-def truncate_entry(entry: LedgerEntry):
-    processed_entry = entry.description
+def format_description(description: str) -> str:
+    """Receives a description from an entry and then formats it to not exceed 25 chars.
+
+    Args:
+        description (str): A description from a ledger entry.
+
+    Returns:
+        str: The processed description so as to truncate it nicely to the 25 char limit.
+    """
+    processed_entry = description
     if len(processed_entry) > 25:
-            processed_entry = processed_entry[:22].rjust(25, '.')
+            processed_entry = processed_entry[:22].ljust(25, '.')
+    else:
+        processed_entry = processed_entry.ljust(25)
     processed_entry += ' | '
     return processed_entry
 
 
-def format_entries(currency, locale: str, entries):
+def format_entries(currency, locale: str, entries: list[LedgerEntry]):
     if locale == 'en_US':
         # Generate Header Row
         table = format_header(locale)
@@ -93,21 +102,7 @@ def format_entries(currency, locale: str, entries):
             date_str += year
             table += date_str
             table += ' | '
-
-            # Write entry description to table
-            # Truncate if necessary
-            if len(entry.description) > 25:
-                for i in range(22):
-                    table += entry.description[i]
-                table += '...'
-            else:
-                for i in range(25):
-                    if len(entry.description) > i:
-                        table += entry.description[i]
-                    else:
-                        table += ' '
-            table += ' | '
-            truncate = truncate_entry(entry)
+            table += entry.description
             # Write entry change to table
             if currency == 'USD':
                 change_str = ''
@@ -223,18 +218,8 @@ def format_entries(currency, locale: str, entries):
 
             # Write entry description to table
             # Truncate if necessary
-            if len(entry.description) > 25:
-                for i in range(22):
-                    table += entry.description[i]
-                table += '...'
-            else:
-                for i in range(25):
-                    if len(entry.description) > i:
-                        table += entry.description[i]
-                    else:
-                        table += ' '
-            table += ' | '
-
+            table += entry.description
+            
             # Write entry change to table
             if currency == 'USD':
                 change_str = '$ '

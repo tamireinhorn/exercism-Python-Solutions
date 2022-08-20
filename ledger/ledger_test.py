@@ -73,14 +73,14 @@ class LedgerTest(unittest.TestCase):
     def test_overlong_description(self):
         currency = 'USD'
         locale = 'en_US'
-        entries = [
+        sentries = [
             create_entry('2015-01-01', 'Freude schoner Gotterfunken', -123456),
         ]
         expected = '\n'.join([
             'Date       | Description               | Change       ',
             '01/01/2015 | Freude schoner Gotterf... |   ($1,234.56)',
         ])
-        self.assertEqual(format_entries(currency, locale, entries), expected)
+        self.assertEqual(format_entries(currency, locale, sentries), expected)
 
     def test_euros(self):
         currency = 'EUR'
