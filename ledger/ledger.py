@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
-
-
+SEPARATOR_DICT = {'en_US': ['.', ','], 'nl_NL': [',', '.']}
+CURRENCY_DICT = {'USD': '$', 'EUR': '€'}
+HEADER_DICT = {'en_US': ['Date', 'Description', 'Change'], 'nl_NL': ['Datum', 'Omschrijving', 'Verandering']}
 
 class LedgerEntry:
     def __init__(self, date: str, description: str, change):
@@ -9,6 +9,7 @@ class LedgerEntry:
         self.date = date
         self.description = description
         self.change = change
+
 
 def create_entry(date: str, description: str, change) -> LedgerEntry:
 
@@ -25,11 +26,8 @@ def format_header(locale: str) -> str:
     Returns:
         str: Returns the header of the table as a string.
     """
-    if locale == 'en_US':
-        table = f"Date{' ' * 7}| Description{' ' * 15}| Change{' ' * 7}"
-    elif locale == 'nl_NL':
-        table = f"Datum{' ' * 6}| Omschrijving{' ' * 14}| Verandering{' ' * 2}"
-    return table
+    h1, h2, h3 = HEADER_DICT[locale]
+    return f"{h1.ljust(11)}| {h2.ljust(26)}| {h3.ljust(13)}"
 
 
 def format_description(description: str) -> str:
@@ -95,6 +93,22 @@ def find_next_entry(entries: list[LedgerEntry]) -> int:
             min_entry_index = i
     return min_entry_index
 
+def format_currency(entry_change: int, locale: str):
+    # function just for locale, for now. Seems easier.
+    # Or maybe for the cents part idk
+    cents_separator, decimal_separator = SEPARATOR_DICT[locale]
+    currency_str = str(entry_change)
+    # Pad the cents part:
+    if abs(entry_change) <= 10:
+        if entry_change < 0:
+            size = 3
+        else:
+            size = 2
+        currency_str = currency_str.rjust(size, '0')
+    currency_list = list(currency_str)
+    currency_list.insert(-2, cents_separator) # Add cent separator.
+    pass
+
 
 def format_entries(currency, locale: str, entries: list[LedgerEntry]):
     if locale == 'en_US':
@@ -102,8 +116,6 @@ def format_entries(currency, locale: str, entries: list[LedgerEntry]):
         table = format_header(locale)
         while len(entries) > 0:
             table += '\n'
-
-            # Find next entry in order
             min_entry_index = find_next_entry(entries)
             entry =  entries.pop(min_entry_index)
             table += format_date(locale, entry.date) # Simplify date processing to another function, tidier as well.
@@ -173,20 +185,14 @@ def format_entries(currency, locale: str, entries: list[LedgerEntry]):
                 while len(change_str) < 13:
                     change_str = ' ' + change_str
                 table += change_str
-        return table
     elif locale == 'nl_NL':
         table = format_header(locale)
         while len(entries) > 0:
             table += '\n'
-
-            # Find next entry in order
             min_entry_index = find_next_entry(entries)
             entry = entries.pop(min_entry_index)
             table += format_date(locale, entry.date)
             table += ' | '
-
-            # Write entry description to table
-            # Truncate if necessary
             table += format_description(entry.description)
             
             # Write entry change to table
@@ -244,4 +250,4 @@ def format_entries(currency, locale: str, entries: list[LedgerEntry]):
                 while len(change_str) < 13:
                     change_str = ' ' + change_str
                 table += change_str
-        return table
+    return table
