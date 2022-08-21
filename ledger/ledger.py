@@ -65,27 +65,35 @@ def format_date(locale: str, date: str) -> str:
         date_str = f"{day.rjust(2, '0')}-{month.rjust(2, '0')}-{year.rjust(4, '0')}"
     else:
         raise ValueError("Location not recognized.")
-    return date_str
+    return f'{date_str} | '
 
 
 def find_next_entry(entries: list[LedgerEntry]) -> int:
+    """Applies business rules to find the next ledger entry to be printed.
+
+    Args:
+        entries (list[LedgerEntry]): List of all ledger entries from which to select the next one.
+
+    Returns:
+        int: Index of the next ledger entry.
+    """
     min_entry_index = -1
     for i in range(len(entries)):
         entry = entries[i]
-        if min_entry_index < 0:
+        if min_entry_index < 0: # If it's the first iteration, the next entry is the one to be considered.
             min_entry_index = i
             
         min_entry = entries[min_entry_index]
-        if entry.date < min_entry.date:
+        if entry.date < min_entry.date: # If the current entry is earlier, it's the next one.
             min_entry_index = i
             
-        elif (
+        elif ( # If the date is tied, the smallest change is the tiebreaker.
             entry.date == min_entry.date and
             entry.change < min_entry.change
         ):
             min_entry_index = i
             
-        elif (
+        elif ( # If all ties, the description is the next tie breaker.
             entry.date == min_entry.date and
             entry.change == min_entry.change and
             entry.description < min_entry.description
@@ -93,9 +101,17 @@ def find_next_entry(entries: list[LedgerEntry]) -> int:
             min_entry_index = i
     return min_entry_index
 
-def format_currency(entry_change: int, locale: str, currency: str):
-    # function just for locale, for now. Seems easier.
-    # Or maybe for the cents part idk
+def format_currency(entry_change: int, locale: str, currency: str) -> str:
+    """Formats the ledger currency according to the locale rules.
+
+    Args:
+        entry_change (int): The ledger entry's value, without separators (10.00 becomes 1000)
+        locale (str): The locale whose formatting we should follow.
+        currency (str): The name of the currency whose symbol we should apply to the ledger.
+
+    Returns:
+        str: Formatted part of the currency ready for adding to ledger.
+    """
     cents_separator, decimal_separator = SEPARATOR_DICT[locale]
     currency_str = str(entry_change).removeprefix('-')
     # Pad the cents part:
@@ -113,96 +129,50 @@ def format_currency(entry_change: int, locale: str, currency: str):
     currency_symbol = CURRENCY_DICT[currency]
     if locale == 'nl_NL': # This locale pads the currency symbol.
         currency_symbol = currency_symbol.ljust(2)
-    if currency_list[0] == '.':
+    if currency_list[0] == '.': # If we just have cents, we need to add the 0 before it!
         currency_list.insert(0, '0')
-    currency_list.insert(0, currency_symbol)
     currency_ledger = ''.join(currency_list)
     if entry_change < 0:
         if locale == 'en_US':
-            currency_ledger = f'({currency_ledger})'
+            currency_ledger = f'({currency_symbol}{currency_ledger})'
         elif locale == 'nl_NL':
-            pass
+            currency_ledger = f'{currency_symbol}-{currency_ledger} '
     else:
+        currency_ledger = f'{currency_symbol}{currency_ledger}'
         currency_ledger += ' '
     currency_ledger = currency_ledger.rjust(13)
     return currency_ledger
 
 
-def format_entries(currency, locale: str, entries: list[LedgerEntry]):
-    if locale == 'en_US':
-        # Generate Header Row
-        table = format_header(locale)
-        while len(entries) > 0:
-            table += '\n'
-            min_entry_index = find_next_entry(entries)
-            entry =  entries.pop(min_entry_index)
-            table += format_date(locale, entry.date) # Simplify date processing to another function, tidier as well.
-            table += ' | '
-            table += format_description(entry.description)
-            table += format_currency(entry.change, locale, currency)
-    elif locale == 'nl_NL':
-        table = format_header(locale)
-        while len(entries) > 0:
-            table += '\n'
-            min_entry_index = find_next_entry(entries)
-            entry = entries.pop(min_entry_index)
-            table += format_date(locale, entry.date)
-            table += ' | '
-            table += format_description(entry.description)
-            
-            # Write entry change to table
-            if currency == 'USD':
-                change_str = '$ '
-                if entry.change < 0:
-                    change_str += '-'
-                change_dollar = abs(int(entry.change / 100.0))
-                dollar_parts = []
-                while change_dollar > 0:
-                    dollar_parts.insert(0, str(change_dollar % 1000))
-                    change_dollar = change_dollar // 1000
-                if len(dollar_parts) == 0:
-                    change_str += '0'
-                else:
-                    while True:
-                        change_str += dollar_parts.pop(0)
-                        if len(dollar_parts) == 0:
-                            break
-                        change_str += '.'
-                change_str += ','
-                change_cents = abs(entry.change) % 100
-                change_cents = str(change_cents)
-                if len(change_cents) < 2:
-                    change_cents = '0' + change_cents
-                change_str += change_cents
-                change_str += ' '
-                while len(change_str) < 13:
-                    change_str = ' ' + change_str
-                table += change_str
-            elif currency == 'EUR':
-                change_str = u'€ '
-                if entry.change < 0:
-                    change_str += '-'
-                change_euro = abs(int(entry.change / 100.0))
-                euro_parts = []
-                while change_euro > 0:
-                    euro_parts.insert(0, str(change_euro % 1000))
-                    change_euro = change_euro // 1000
-                if len(euro_parts) == 0:
-                    change_str += '0'
-                else:
-                    while len(euro_parts) > 0:
-                        change_str += euro_parts.pop(0)
-                        if len(euro_parts) == 0:
-                            break
-                        change_str += '.'
-                change_str += ','
-                change_cents = abs(entry.change) % 100
-                change_cents = str(change_cents)
-                if len(change_cents) < 2:
-                    change_cents = '0' + change_cents
-                change_str += change_cents
-                change_str += ' '
-                while len(change_str) < 13:
-                    change_str = ' ' + change_str
-                table += change_str
+def format_entry(entry: LedgerEntry, locale: str, currency: str) -> str:
+    """Formats entry using auxiliary functions for every part of a Ledger Entry.
+
+    Args:
+        entry (LedgerEntry): The entry to be formatted.
+        locale (str): The locale whose formatting rules the entry should follow.
+        currency (str): The currency to be used in the entry formatting.
+
+    Returns:
+        str: The formatted entry to be added to the ledger.
+    """
+    return f'{format_date(locale, entry.date)}{format_description(entry.description)}{format_currency(entry.change, locale, currency)}'
+
+
+def format_entries(currency: str, locale: str, entries: list[LedgerEntry]) -> str:
+    """Main function that generates the entire ledger.
+
+    Args:
+        currency (str): Chosen currency for the entire ledger.
+        locale (str): Chosen locale for the entire ledger.
+        entries (list[LedgerEntry]): All entries that need to be added to the ledger.
+
+    Returns:
+        str: The ledger in a string format.
+    """
+    table = format_header(locale)
+    while len(entries) > 0:
+        table += '\n'
+        min_entry_index = find_next_entry(entries)
+        entry =  entries.pop(min_entry_index)
+        table += format_entry(entry, locale, currency)
     return table
