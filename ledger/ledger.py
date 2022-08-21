@@ -170,9 +170,10 @@ def format_entries(currency: str, locale: str, entries: list[LedgerEntry]) -> st
         str: The ledger in a string format.
     """
     table = format_header(locale)
-    while len(entries) > 0:
-        table += '\n'
-        min_entry_index = find_next_entry(entries)
-        entry =  entries.pop(min_entry_index)
-        table += format_entry(entry, locale, currency)
-    return table
+    if entries:
+        sorted_entries = sorted(entries, key = lambda x: (x.date, x.change, x.description)) # You only need to sort once.
+        formatted_entries = [format_entry(entry, locale, currency) for entry in sorted_entries]
+        rest_of_table = '\n' + '\n'.join(formatted_entries)
+    else:
+        rest_of_table = ''
+    return table + rest_of_table
