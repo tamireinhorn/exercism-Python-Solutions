@@ -1,6 +1,5 @@
 def encode(numbers: list[int]):
     answer = []
-    #Another way to look at this is to represent the value in base-128 and then set the MSB of all but the last base-128 digit to 1.
     for number in numbers:
         answer += encode_number(number)
     return answer
@@ -8,11 +7,16 @@ def encode(numbers: list[int]):
 
 def decode(bytes_):
     answer = ""
-    # In VLQ, the last bit is a continuation byte. If it's set, the sequence is incomplete:
-    if bytes_[-1] >> 7 == 1:
+    # In VLQ, the last bit is a continuation byte. If it's set but there is nothing after it, the sequence is incomplete:
+    binary_reprs = [bin(byte)[2:].rjust(8, '0') for byte in bytes_]
+
+    if binary_reprs[-1][0] == '1': # With eight, the byte has the continuation bit put. And the last one CAN'T be 1.
         raise ValueError("incomplete sequence")
     for byte in bytes_:
         answer += bin(byte | 128)[3:] # Convert to binary with an OR due to base-128, then remove the prefix.
+    for bin_rep in binary_reprs:
+        # Remember the split you did, imbecile, then do the opposite.
+        pass
     return [int(answer, 2)] # Then reconvert to base 2 as int and put it as a list.
 
 
