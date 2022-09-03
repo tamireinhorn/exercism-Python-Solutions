@@ -6,7 +6,6 @@ def encode(numbers: list[int]):
 
 
 def decode(bytes_):
-    answer = ""
     # In VLQ, the last bit is a continuation byte. If it's set but there is nothing after it, the sequence is incomplete:
     binary_reprs = [bin(byte)[2:] for byte in bytes_]
 
@@ -15,12 +14,17 @@ def decode(bytes_):
     # for byte in bytes_:
 
     result = []
-    current_result = 0
-    for byte, binar in zip(bytes_, binary_reprs):
-        current_result = (current_result << 7) | (byte & 0b1111111)
+    temp = ""
+    for binar in binary_reprs:
+        temp += binar
         if binar.rjust(8, '0')[0] == '0':
-            result.append(current_result)
-            current_result = 0
+            # The reverse of the encoding operation is going from left to right in chunks of 8.
+            # If the chunk is of a lesser length, like 7, pad it with a 0. Then we take the MSB out, because it's just the continuation digit.
+            # The padding is just so we never discard a bit in a 7 bit length.
+            # This whole string is the original binary number.
+            x = int(''.join([temp[i:i+8].rjust(8, '0')[1:] for i in range(0, len(temp), 8)]), 2)
+            result.append(x)
+            temp = ""
     return result
 
 
