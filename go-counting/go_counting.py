@@ -1,6 +1,6 @@
 BLACK = "B"
 WHITE = "W"
-NONE = ""
+NONE = " "
 
 class Board:
     """Count territories of each player in a Go game
@@ -47,8 +47,37 @@ class Board:
             return WHITE, self._white_territories
         elif examined_terr == BLACK or examined_terr == WHITE:
             return NONE, set()
-
+        
         # It's not a stone and not fully surrounded by stones of one player: then we are in for it.
+        # Solution: stack.
+        stack = neighbors
+        visited = [(x,y)]
+        stones = set()
+        while stack:
+            row, col = stack.pop()
+            current_territory = board[row][col]
+            if (row, col) in visited:
+                continue
+            if current_territory == NONE: # Empty territory prompts me to search more
+                next_neighbors = self.get_neighbors(row, col)
+                stack += next_neighbors
+                visited.append((row, col))
+            else:
+                stones.add(current_territory)
+                # If I find a stone, just keep track of it.
+        # I have thus visited all the neighbors.
+        owner = NONE
+        if len(stones) == 1 and visited: # If there is visited territory AND only one type of stone in the borders, the owner's this guy.
+            owner = stones.pop()
+            if owner == WHITE:
+                self._white_territories = self._white_territories.union(set(visited))
+                return owner, self._white_territories
+            else:
+                self._black_territories = self._black_territories.union(set(visited))
+                return owner, self._black_territories
+        print(2)
+
+
         # Although it does seem like a recursive solution solves it, it can and will create infinite loops.
 
     def territories(self):
