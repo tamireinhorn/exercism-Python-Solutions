@@ -20,8 +20,8 @@ class Board:
            the board
 
         Args:
-            x (int): Row on the board
-            y (int): column on the board
+            x (int): Column on the board
+            y (int): Row on the board
 
         Returns:
             (str, set): A tuple, the first element being the owner
@@ -30,11 +30,23 @@ class Board:
                         the owner's territories.
         """
         board = self.board
-        if y < 0 or x < 0 or y > len(board[0]) -1 or x > len(board) -1:
+        if y < 0 or x < 0 or y > len(board) -1 or x > len(board[0]) -1:
             raise ValueError("Invalid coordinate")
-
+        examined_terr = board[y][x]
         neighbors = self.get_neighbors(x, y)
-       
+        # To be more precise an empty intersection is part of a player's territory
+        # if all of its neighbors are either stones of that player or empty
+        # intersections that are part of that player's territory.
+        if (all(self.board[neighbor[1]][neighbor[0]] == BLACK for neighbor in neighbors)
+            or all(neighbor in self._black_territories for neighbor in neighbors)):
+            self._black_territories.add((x, y))
+            return BLACK, self._black_territories
+        elif (all(self.board[neighbor[1]][neighbor[0]] == WHITE for neighbor in neighbors)
+             or all(neighbor in self._white_territories for neighbor in neighbors)):
+            self._white_territories.add((x,y))
+            return WHITE, self._white_territories
+        elif examined_terr == BLACK or examined_terr == WHITE:
+            return NONE, set()
         
         # It's not a stone and not fully surrounded by stones of one player: then we are in for it.
         # Solution: stack.
@@ -63,9 +75,7 @@ class Board:
             else:
                 self._black_territories = self._black_territories.union(set(visited))
                 return owner, self._black_territories
-        else:
-            self._none_territories = self._none_territories.union(set(visited))
-            return NONE, self._none_territories
+        print(2)
 
 
         # Although it does seem like a recursive solution solves it, it can and will create infinite loops.
@@ -97,11 +107,11 @@ class Board:
             list[tuple[int, int]]: List of tuples defining (column, row) on the board for the territories neighboring the specified one.
         """
         neighbors = []
-        if x != len(self.board) -1:
+        if x != len(self.board[0]) -1:
             neighbors.append((x+1, y))
         if x != 0:
             neighbors.append((x-1, y))
-        if y != len(self.board[0]) -1:
+        if y != len(self.board) -1:
             neighbors.append((x, y+1))
         if y != 0:
             neighbors.append((x, y-1))
