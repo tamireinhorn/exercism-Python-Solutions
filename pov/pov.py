@@ -19,14 +19,27 @@ class Tree:
         return self.__dict__() == other.__dict__()
 
     def from_pov(self, from_node):
+        if self.label == from_node:
+            return self # Base case needs nothing more
         path = self.path_from_self(from_node)
         if not path: # If the path is empty, there is no possible path to it and thus no reorientation.
             raise ValueError('Tree could not be reoriented')
+        # The base case requires us to iterate on two connected nodes at a time:
+        for first_node, second_node in zip(path[0:], path[1:]):
+            # The first node is now the children of the second, so:
+            first_node.children.remove(second_node) # The first node loses the second as child
+            second_node.children.append(first_node) # Now the second node is the father of the second.
         return path[-1] # The last node in path is the from node where the new root is.
 
 
     def path_to(self, from_node, to_node):
-        pass
+        # Reorient tree:
+        new_tree = self.from_pov(from_node)
+        path = new_tree.path_from_self(to_node)
+        if path:
+            return [node.label for node in path]
+        else:
+            raise ValueError('No path found')
 
     def path_from_self(self, to_node: str) -> list['Tree']:
         """Builds a path from the root node to a specific node.
