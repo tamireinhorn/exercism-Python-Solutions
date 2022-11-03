@@ -33,20 +33,13 @@ class Board:
         if y < 0 or x < 0 or y > len(board) -1 or x > len(board[0]) -1:
             raise ValueError("Invalid coordinate")
         examined_terr = board[y][x]
+        if examined_terr == BLACK or examined_terr == WHITE:
+            return NONE, set()
         neighbors = self.get_neighbors(x, y)
         # To be more precise an empty intersection is part of a player's territory
         # if all of its neighbors are either stones of that player or empty
         # intersections that are part of that player's territory.
-        if (all(self.board[neighbor[1]][neighbor[0]] == BLACK for neighbor in neighbors)
-            or all(neighbor in self._black_territories for neighbor in neighbors)):
-            self._black_territories.add((x, y))
-            return BLACK, self._black_territories
-        elif (all(self.board[neighbor[1]][neighbor[0]] == WHITE for neighbor in neighbors)
-             or all(neighbor in self._white_territories for neighbor in neighbors)):
-            self._white_territories.add((x,y))
-            return WHITE, self._white_territories
-        elif examined_terr == BLACK or examined_terr == WHITE:
-            return NONE, set()
+        
         
         # It's not a stone and not fully surrounded by stones of one player: then we are in for it.
         # Solution: stack.
@@ -54,14 +47,14 @@ class Board:
         visited = [(x,y)]
         stones = set()
         while stack:
-            row, col = stack.pop()
+            col, row = stack.pop()
             current_territory = board[row][col]
-            if (row, col) in visited:
+            if (col, row) in visited:
                 continue
             if current_territory == NONE: # Empty territory prompts me to search more
-                next_neighbors = self.get_neighbors(row, col)
+                next_neighbors = self.get_neighbors(col, row)
                 stack += next_neighbors
-                visited.append((row, col))
+                visited.append((col, row))
             else:
                 stones.add(current_territory)
                 # If I find a stone, just keep track of it.
@@ -75,7 +68,9 @@ class Board:
             else:
                 self._black_territories = self._black_territories.union(set(visited))
                 return owner, self._black_territories
-        print(2)
+        else:
+            self._none_territories = self._none_territories.union(set(visited))
+            return NONE, self._none_territories
 
 
         # Although it does seem like a recursive solution solves it, it can and will create infinite loops.
@@ -93,7 +88,7 @@ class Board:
         """
         for row, _ in enumerate(self.board):
             for column, _ in enumerate(self.board[row]):
-                self.territory(row, column)
+                self.territory(column, row)
         return {BLACK: self._black_territories, WHITE: self._white_territories, NONE: self._none_territories}
     
     def get_neighbors(self, x: int, y: int) -> list[tuple[int, int]]:
